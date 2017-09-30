@@ -1,6 +1,5 @@
 package it.diepet.gwt.rpc.serializer.util;
 
-import it.diepet.gwt.rpc.serializer.error.GwtRpcSerializerException;
 
 /**
  * The Class StringUtils.

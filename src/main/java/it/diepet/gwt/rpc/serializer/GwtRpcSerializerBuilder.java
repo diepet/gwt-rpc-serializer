@@ -1,8 +1,5 @@
 package it.diepet.gwt.rpc.serializer;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import it.diepet.gwt.rpc.serializer.util.ValidationUtils;
 
 /**
