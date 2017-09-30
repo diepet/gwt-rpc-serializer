@@ -1,5 +1,7 @@
 package it.diepet.gwt.rpc.serializer.util;
 
+import it.diepet.gwt.rpc.serializer.error.GwtRpcSerializerException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -30,20 +32,24 @@ public final class ReflectionUtils {
 	 * @param target the target
 	 * @param fieldName the field name
 	 * @return the object
-	 * @throws IllegalAccessException the illegal access exception
 	 */
-	public static Object readField(final Object target, final String fieldName) throws IllegalAccessException {
-
+	public static Object readField(final Object target, final String fieldName) {
 		final Class<?> cls = target.getClass();
-
 		final Field field = getField(cls, fieldName);
 
 		// already forced access above, don't repeat it here:
 		if (!field.isAccessible()) {
 			 field.setAccessible(true);
 		}
-		return field.get(target);
-
+		
+		try {
+			Object result = field.get(target);
+			return result;
+		} catch (IllegalArgumentException e) {
+			throw new GwtRpcSerializerException(e);
+		} catch (IllegalAccessException e) {
+			throw new GwtRpcSerializerException(e);
+		}
 	}
 
 	/**
@@ -53,7 +59,7 @@ public final class ReflectionUtils {
 	 * @param fieldName            the field name
 	 * @return the field
 	 */
-	public static final Field getField(final Class<?> cls, 
+	private static final Field getField(final Class<?> cls, 
 			final String fieldName) {
 		// check up the superclass hierarchy
 		for (Class<?> acls = cls; acls != null; acls = acls.getSuperclass()) {
@@ -87,10 +93,7 @@ public final class ReflectionUtils {
 	 *            the cls
 	 * @return the all interfaces
 	 */
-	public static List<Class<?>> getAllInterfaces(final Class<?> cls) {
-		if (cls == null) {
-			return null;
-		}
+	private static List<Class<?>> getAllInterfaces(final Class<?> cls) {
 		final LinkedHashSet<Class<?>> interfacesFound = new LinkedHashSet<Class<?>>();
 		getAllInterfaces(cls, interfacesFound);
 		return new ArrayList<Class<?>>(interfacesFound);
@@ -107,25 +110,14 @@ public final class ReflectionUtils {
 	 */
 	private static void getAllInterfaces(Class<?> cls,
 			final HashSet<Class<?>> interfacesFound) {
-
 		while (cls != null) {
-
 			final Class<?>[] interfaces = cls.getInterfaces();
-
 			for (final Class<?> i : interfaces) {
-
 				if (interfacesFound.add(i)) {
-
 					getAllInterfaces(i, interfacesFound);
-
 				}
-
 			}
-
 			cls = cls.getSuperclass();
-
 		}
-
 	}
-
 }
